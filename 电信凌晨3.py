@@ -357,7 +357,7 @@ async def qgNight(phone, ticket, timeValue,isTrue):
     sign =await getSign(ticket,session)
     if sign:
         print(f"当前时间:{str(datetime.datetime.now())[11:23]}获取到了Sign:"+sign)
-        session.headers={"User-Agent":"Mozilla/5.0 (Linux; Android 13; 22081212C Build/TKQ1.220829.002) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.97 Mobile Safari/537.36","sign":sign}
+        session.headers={"User-Agent":"Mozilla/5.0 (Linux; Android 13; 081212C Build/TKQ1.0829.002) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.97 Mobile Safari/537.36","sign":sign}
     else:
         print("未能获取sign。")
         return
@@ -408,7 +408,7 @@ PHONES=os.environ.get('PHONES1') or "18055666135@524525"
 if __name__ == "__main__":
     global timeValue,timeDiff
     h = datetime.datetime.now().hour
-    h=22                           #手动设置场次的时间
+    h=24                           #手动设置场次的时间
     print("当前小时为: "+str(h))    
     if 10 >h >0:
         print("当前小时为: "+str(h)+"已过0点但未到10点开始准备抢十点场次")
