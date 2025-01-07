@@ -1,5 +1,13 @@
-#多号换行，变量名：sfsyUrl
-# const $ = new Env('顺丰速运')
+#2025/1/6 遍历生活特权所有分组的券进行领券，券没啥用但完成可领取30点丰蜜目前一天拉满155点
+#变量名：sfsyUrl
+#格式：多账号用&分割或创建多个变量sfsyUrl
+#关于参数获取如下两种方式：
+#❶顺丰APP绑定微信后，前往该站点sm.linzixuan.work用微信扫码登录后，选择复制编码Token，不要复制错
+#或者
+#❷打开小程序或APP-我的-积分, 手动抓包以下几种URL之一
+#https://mcs-mimp-web.sf-express.com/mcs-mimp/share/weChat/shareGiftReceiveRedirect
+#https://mcs-mimp-web.sf-express.com/mcs-mimp/share/app/shareRedirect
+#抓好URL后访问https://www.toolhelper.cn/EncodeDecode/Url进行编码，请务必按提示操作
 import hashlib
 import json
 import os
@@ -266,54 +274,64 @@ class RUN:
         else:
             print(f'收取任务【{self.taskType}】失败！原因：{response.get("errorMessage")}')
 
-    def get_coupom(self):
-        print('>>>执行领取生活权益领券任务')
-        # 领取生活权益领券
-        # https://mcs-mimp-web.sf-express.com/mcs-mimp/commonPost/~memberGoods~pointMallService~createOrder
-    
+
+    def get_coupom(self, goods):  
+        # 请求参数
         json_data = {
             "from": "Point_Mall",
             "orderSource": "POINT_MALL_EXCHANGE",
-            "goodsNo": self.goodsNo,
+            "goodsNo": goods['goodsNo'],
             "quantity": 1,
             "taskCode": self.taskCode
         }
         url = 'https://mcs-mimp-web.sf-express.com/mcs-mimp/commonPost/~memberGoods~pointMallService~createOrder'
+    
+        # 发起领券请求
         response = self.do_request(url, data=json_data)
         if response.get('success') == True:
-            print(f'>领券成功！')
-            return True  # Coupon successfully claimed
+            print(f'> 领券成功！')
+            return True  # 领取成功
         else:
-            print(f'>领券失败！原因：{response.get("errorMessage")}')
-            return False  # Coupon claim failed
+            print(f'> 领券失败！原因：{response.get("errorMessage")}')
+            return False  # 领取失败
     
     
-    def get_coupom_list(self):
-        print('>>>获取生活权益券列表')
-        # 领取生活权益领券
-        # https://mcs-mimp-web.sf-express.com/mcs-mimp/commonPost/~memberGoods~pointMallService~createOrder
-    
+    def get_coupom_list(self):        
+        # 请求参数
         json_data = {
             "memGrade": 2,
             "categoryCode": "SHTQ",
             "showCode": "SHTQWNTJ"
         }
         url = 'https://mcs-mimp-web.sf-express.com/mcs-mimp/commonPost/~memberGoods~mallGoodsLifeService~list'
+    
+        # 发起获取券列表请求
         response = self.do_request(url, data=json_data)
-        # print(response)
+    
         if response.get('success') == True:
-            goodsList = response["obj"][0]["goodsList"]
-            for goods in goodsList:
-                exchangeTimesLimit = goods['exchangeTimesLimit']
-                if exchangeTimesLimit >= 1:
-                    self.goodsNo = goods['goodsNo']
-                    print(f'当前选择券号：{self.goodsNo}')
-                    if self.get_coupom():  # Try to claim the coupon
-                        break  # Exit the loop if the coupon is successfully claimed
-            else:
-                print('No coupons with valid exchange times found.')
+            # 遍历所有分组的券列表
+            all_goods = []
+            for obj in response.get("obj", []):  # 遍历所有券分组
+                goods_list = obj.get("goodsList", [])
+                all_goods.extend(goods_list)  # 收集到一个总列表中
+               
+            # 尝试领取
+            for goods in all_goods:
+                exchange_times_limit = goods.get('exchangeTimesLimit', 0)
+    
+                # 检查券是否可兑换
+                if exchange_times_limit >= 1:
+                    print(f'尝试领取：{goods["goodsName"]}')
+                    
+                    # 尝试领取券
+                    if self.get_coupom(goods):
+                        print('成功领取券，任务结束！')
+                        return  # 成功领取后退出
+            print('所有券尝试完成，没有可用的券或全部领取失败。')
         else:
-            print(f'>领券失败！原因：{response.get("errorMessage")}')
+            print(f'> 获取券列表失败！原因：{response.get("errorMessage")}')
+
+
 
     def get_honeyTaskListStart(self):
         print('>>>开始获取采蜜换大礼任务列表')
@@ -1741,14 +1759,8 @@ if __name__ == '__main__':
     APP_NAME = '顺丰速运'
     ENV_NAME = 'sfsyUrl'
     CK_NAME = 'url'
-    print(f'''
-    2025/1/4修复版，新增新年活动
-    扫码获取URL网站：sm.linzixuan.work,选择复制编码Token即可
-    格式：多账号用&分割
-    变量名：sfsyUrl
-    ''')
     local_script_name = os.path.basename(__file__)
-    local_version = '2025.01.04'
+    local_version = '2025.01.06'
     token = os.getenv(ENV_NAME)
     # 将分隔符从\n改为&
     tokens = token.split('&')
