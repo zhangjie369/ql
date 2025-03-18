@@ -1730,7 +1730,7 @@ def import_Tools():
 
 if __name__ == '__main__':
     APP_NAME = '顺丰速运'
-    ENV_NAME = 'sfsyUrl-New'
+    ENV_NAME = 'sfsyUrlNew'
     CK_NAME = 'url'
     print(f'''
        ✨✨✨ TG频道:https://t.me/fxmbb ✨✨✨
