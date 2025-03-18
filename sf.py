@@ -1,4 +1,4 @@
-#多号换行，变量名：sfsyUrl
+#多号换行，变量名：sfsyUrlNew
 # const $ = new Env('顺丰速运')
 import hashlib
 import json
