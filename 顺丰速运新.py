@@ -1654,7 +1654,7 @@ def import_Tools():
 
 if __name__ == '__main__':
     APP_NAME = '顺丰速运'
-    ENV_NAME = 'sfsyUrl'
+    ENV_NAME = 'sfsyUrlnew2'
     CK_NAME = 'url'
     local_script_name = os.path.basename(__file__)
     local_version = '2025.01.24'
