@@ -1,6 +1,6 @@
 '''
 环境变量
-export sfsyUrl=""
+export sfsyUrlnew3=""
 '''
 
 EXCHANGE_COUPON = False # 蜂蜜兑券 True为启用、False为禁用[默认禁用]
