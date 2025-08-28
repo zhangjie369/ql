@@ -1,0 +1,75 @@
+/**
+ * 途虎养车每日签到 (青龙 Node.js 版本)
+ * 环境变量:
+ * export TUHU_TOKEN='["Bearer token1","Bearer token2"]'
+ * export TUHU_BLACKBOX='xxxxxxx'
+ */
+
+const axios = require("axios");
+
+let tokens = [];
+let blackbox = process.env.TUHU_BLACKBOX || "";
+
+(async () => {
+  console.log("📢 途虎养车签到开始...");
+
+  try {
+    tokens = JSON.parse(process.env.TUHU_TOKEN || "[]");
+  } catch (e) {
+    console.log("❌ TUHU_TOKEN 格式错误，请使用 JSON 数组格式！");
+    return;
+  }
+
+  if (tokens.length === 0) {
+    console.log("❌ 未配置 TUHU_TOKEN");
+    return;
+  }
+
+  for (let i = 0; i < tokens.length; i++) {
+    console.log(`\n===== 账号 ${i + 1} 开始执行 =====`);
+    let token = tokens[i];
+
+    await checkIn(token, "软件");   // 软件签到
+    await checkIn(token, "微信");   // 微信签到
+    await getUserScore(token);      // 查询积分
+  }
+
+  console.log("\n✅ 所有账号执行完成");
+})();
+
+async function checkIn(token, type) {
+  let url = "https://api.tuhu.cn/User/UserCheckInVersion1";
+  let headers = {
+    Authorization: token,
+    blackbox: blackbox,
+    "Content-Type": "application/json",
+  };
+  let body = { checkInSource: type === "软件" ? 1 : 2 };
+
+  try {
+    let { data } = await axios.post(url, body, { headers });
+    if (data?.IsSuccess) {
+      console.log(`🎉 ${type}签到成功: +${data.Result.Point}分, 连续签到${data.Result.CheckInDay}/7天`);
+    } else {
+      console.log(`⚠️ ${type}签到失败: ${data?.Message || "未知错误"}`);
+    }
+  } catch (e) {
+    console.log(`❌ ${type}签到异常: ${e.message}`);
+  }
+}
+
+async function getUserScore(token) {
+  let url = "https://api.tuhu.cn/User/GetUserScore";
+  let headers = { Authorization: token, blackbox: blackbox };
+
+  try {
+    let { data } = await axios.get(url, { headers });
+    if (data?.IsSuccess) {
+      console.log(`💰 当前积分: ${data.Result.Score}, 可抵现: ${data.Result.Amount} 元`);
+    } else {
+      console.log(`⚠️ 积分查询失败: ${data?.Message || "未知错误"}`);
+    }
+  } catch (e) {
+    console.log(`❌ 积分查询异常: ${e.message}`);
+  }
+}
